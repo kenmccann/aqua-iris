@@ -10,19 +10,13 @@ args = parser.parse_args()
 # Get database password from environment
 db_password = getenv('SCALOCK_DBPASSWORD')
 
-conn = psycopg2.connect(f"host=0.0.0.0 dbname=scalock user=postgres password={db_password}")
-cur = conn.cursor()
-cur.execute("SELECT * FROM settings")
-records = cur.fetchall()
-
-print(records)
-
 if __name__ == '__main__':
     try:
         conn = psycopg2.connect(f"host=0.0.0.0 dbname=scalock user=postgres password={db_password}")
         cur = conn.cursor()
         cur.execute("SELECT * FROM settings")
         records = cur.fetchall()
+        print(records)
 
     except KeyboardInterrupt:
         print("\nExiting by user request.\n", file=sys.stderr)
