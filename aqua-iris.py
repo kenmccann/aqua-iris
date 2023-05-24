@@ -12,7 +12,7 @@ db_password = getenv('SCALOCK_DBPASSWORD')
 
 if __name__ == '__main__':
     try:
-        conn = psycopg2.connect(f"host=0.0.0.0 dbname=scalock user=postgres password={db_password}")
+        conn = psycopg2.connect(f"host={args.server} dbname=scalock user=postgres password={db_password}")
         cur = conn.cursor()
         cur.execute("SELECT * FROM settings")
         records = cur.fetchall()
