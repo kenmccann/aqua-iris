@@ -129,3 +129,6 @@ dmypy.json
 # VScode config
 launch.json
 .vscode
+
+# Project artifacts
+*.csv
