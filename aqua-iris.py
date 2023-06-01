@@ -1,6 +1,6 @@
 import psycopg2
 import argparse
-from os import getenv
+from os import getenv, path, makedirs
 import sys
 from flask import Flask, send_file
 import csv
@@ -25,6 +25,10 @@ app = Flask(__name__)
 # Establish long-lived connection to PostgreSQL Server
 conn = psycopg2.connect(f"host={args.server} dbname=scalock user=postgres password={db_password}")
 cur = conn.cursor(cursor_factory=DictCursor)
+
+# Create output directory
+if not path.exists('out'):
+  makedirs('out')
 
 @app.route('/')
 def index():
@@ -110,31 +114,31 @@ def image_repo_vuln_severity_distribution():
   records = execute_query("csp-queries/scalock/image_repo_vuln_severity_distribution.sql")
   print("Top 10 repos by Vulnerability severity distirbution\n" + result_table(records)+"\n")
   header = get_header()
-  write_csv('image_repo_vuln_sev_distro.csv', header, records)
+  write_csv('out/image_repo_vuln_sev_distro.csv', header, records)
 
 def containers_overall_assurance():
   records = execute_query("csp-queries/scalock/containers_overall_assurance_results.sql")
   print("Containers overall assurance results\n" + result_table(records)+"\n")
   header = get_header()
-  write_csv('containers_overall_assurance_results.csv', header, records)
+  write_csv('out/containers_overall_assurance_results.csv', header, records)
 
 def image_assurance_control_summary():
   records = execute_query("csp-queries/scalock/image_assurance_control_summary.sql")
   print("Image Assurance control summary\n" + result_table(records)+"\n")
   header = get_header()
-  write_csv('image_assurance_control_summary.csv', header, records)
+  write_csv('out/image_assurance_control_summary.csv', header, records)
 
 def image_count_over_time():
   records = execute_query("csp-queries/scalock/image_count_over_time.sql")
   print("Image count growth over 12 months\n" + result_table(records)+"\n")
   header = get_header()
-  write_csv('image_count_over_time.csv', header, records)
+  write_csv('out/image_count_over_time.csv', header, records)
 
 def image_growth_metrics():
   records = execute_query("csp-queries/scalock/image_growth_metrics.sql")
   print("Growth metrics\n" + result_table(records)+"\n")
   header = get_header()
-  write_csv('image_count_over_time.csv', header, records)
+  write_csv('out/image_count_over_time.csv', header, records)
 
 if __name__ == '__main__':
     try:
