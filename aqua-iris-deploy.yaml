@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: aqua-iris
+  name: aqua-iris
+  namespace: aqua
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aqua-iris
+  template:
+    metadata:
+      labels:
+        app: aqua-iris
+    spec:
+      containers:
+      - args:
+        - -d 
+        - -s aqua-db
+#        command:
+#        - /bin/sh
+        env:
+        - name: SCALOCK_DBPASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: aqua-db
+#        envFrom:
+#        - secretRef:
+#            name: aqua-scanner
+#        - configMapRef:
+#            name: aqua-scanner-config
+        image: kenmac/aqua-iris
+        imagePullPolicy: Always
+        name: aqua-iris
+      imagePullSecrets:
+      - name: aqua-registry
+      restartPolicy: Always
+      securityContext:
+        fsGroup: 11433
+        runAsGroup: 11433
+        runAsUser: 11431
+      serviceAccount: aqua-sa
+      serviceAccountName: aqua-sa
