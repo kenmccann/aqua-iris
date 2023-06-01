@@ -70,7 +70,7 @@ SELECT
 --	   im.image_id::text,
 	   c.registry_id as registry_name,
 	   c.level1 as cluster,
-	   c.level2 as namesapce,
+	   c.level2 as namespace,
        c.level3 as controller,
        c.level3_type as controller_type,
 	   c.level4 as pod_name,
