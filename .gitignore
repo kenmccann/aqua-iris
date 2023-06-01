@@ -132,3 +132,4 @@ launch.json
 
 # Project artifacts
 *.csv
+*.zip
