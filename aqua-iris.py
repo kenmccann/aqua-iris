@@ -4,11 +4,16 @@ from os import getenv
 import sys
 from flask import Flask, send_file
 import csv
+from zipfile import ZipFile
+import glob
+from psycopg2.extras import DictCursor
+from tabulate import tabulate
 
 parser = argparse.ArgumentParser(description='Aqua Security metrics gathering tool necessary for assessing risk and security posture as seen by the Aqua Platform ')
 parser.add_argument('-s', '--server', help='PostgreSQL hostname or IP', required=True)
 parser.add_argument('-d', '--daemon', help='Run in daemon mode, starting the http server',
                     action='store_true')
+parser.add_argument('-D', '--debug', help='Enable debug messages', action='store_true')
 args = parser.parse_args()
 
 # Get database password from environment
@@ -16,6 +21,10 @@ db_password = getenv('SCALOCK_DBPASSWORD')
 
 # Create Flask HTTP server
 app = Flask(__name__)
+
+# Establish long-lived connection to PostgreSQL Server
+conn = psycopg2.connect(f"host={args.server} dbname=scalock user=postgres password={db_password}")
+cur = conn.cursor(cursor_factory=DictCursor)
 
 @app.route('/')
 def index():
@@ -66,29 +75,58 @@ def index():
 
 @app.route('/download')
 def download():
-    filename = 'test.json'
+    #filename = 'test.json'
+    filename = 'data.zip'
+    with ZipFile(filename, 'w') as f:
+      for file in glob.glob('*.csv'):
+          f.write(file)
     return send_file(filename, as_attachment=True)
 
+def execute_query(query_file):
+   cur.execute(open(query_file, "r").read())
+   return cur.fetchall()
+
+def get_header():
+   return [desc[0] for desc in cur.description]
+
+def result_table(records):
+    # Get column names from cursor description
+    columns = get_header()
+
+    # Format query results as a list of lists
+    formatted_rows = [[row[col] for col in columns] for row in records]
+
+    # Print the query results in a nicely formatted table
+    return tabulate(formatted_rows, headers=columns, tablefmt="psql")
+
+def write_csv(filename, header, records):
+  with open(filename, 'w', newline='') as output_file:
+    csv_writer = csv.writer(output_file)
+    csv_writer.writerow(header)
+    csv_writer.writerows(records)
+   
+
 def run_image_repo_vuln_sev_distro():
-    conn = psycopg2.connect(f"host={args.server} dbname=scalock user=postgres password={db_password}")
-    cur = conn.cursor()
-    cur.execute(open("csp-queries/scalock/image_repo_vuln_severity_distribution.sql", "r").read())
-    records = cur.fetchall()
+  records = execute_query("csp-queries/scalock/image_repo_vuln_severity_distribution.sql")
+  print (result_table(records))
+  header = get_header()
+  write_csv('image_repo_vuln_sev_distro.csv', header, records)
 
-    header = ["repo_name", "num_images", "total_vulns", "critical", "high", "medium", "low", "negligible" ]
-    with open('image_repo_vuln_sev_distro.csv', 'w', newline='') as output_file:
-      csv_writer = csv.writer(output_file)
-      csv_writer.writerow(header)
-      csv_writer.writerows(records)
-      # for row in records:
-      #     dict_writer.writerow(row)
-    return records
+def containers_overall_assurance():
+  records = execute_query("csp-queries/scalock/containers_overall_assurance_results.sql")
+  print(result_table(records))
+  header = get_header()
+  write_csv('containers_overall_assurance_results.csv', header, records)
 
+
+
+   
 
 if __name__ == '__main__':
     try:
         if args.daemon:
-            img_repo_distro = run_image_repo_vuln_sev_distro()
+            run_image_repo_vuln_sev_distro()
+            containers_overall_assurance()
             app.run()
         else: 
           conn = psycopg2.connect(f"host={args.server} dbname=scalock user=postgres password={db_password}")
