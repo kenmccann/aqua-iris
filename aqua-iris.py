@@ -21,6 +21,8 @@ args = parser.parse_args()
 
 if getenv('SCALOCK_DBHOST'): db_server = getenv('SCALOCK_DBHOST') 
 else: db_server = args.server
+print('db_server = ' + db_server)
+
 
 if getenv('SCALOCK_DBPORT'): db_port = getenv('SCALOCK_DBPORT') 
 else: db_port = args.port

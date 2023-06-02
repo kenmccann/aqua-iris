@@ -23,9 +23,6 @@ spec:
 #        - /bin/sh
         ports:
         - containerPort: 8088
-        envFrom:
-        - configMapRef:
-            name: aqua-csp-server-config
         env:
         - name: SCALOCK_DBPASSWORD
           valueFrom:
@@ -35,6 +32,9 @@ spec:
         image: kenmac/aqua-iris
         imagePullPolicy: Always
         name: aqua-iris
+        envFrom:
+        - configMapRef:
+            name: aqua-csp-server-config
       imagePullSecrets:
       - name: aqua-registry
       restartPolicy: Always
