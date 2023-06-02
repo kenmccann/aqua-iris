@@ -23,6 +23,9 @@ spec:
 #        - /bin/sh
         ports:
         - containerPort: 8088
+        envFrom:
+        - configMapRef:
+            name: aqua-csp-server-config
         env:
         - name: SCALOCK_DBPASSWORD
           valueFrom:
