@@ -80,9 +80,9 @@ def index():
 @app.route('/download')
 def download():
     #filename = 'test.json'
-    filename = 'data.zip'
+    filename = 'out/data.zip'
     with ZipFile(filename, 'w') as f:
-      for file in glob.glob('*.csv'):
+      for file in glob.glob('out/*.csv'):
           f.write(file)
     return send_file(filename, as_attachment=True)
 
@@ -148,7 +148,7 @@ if __name__ == '__main__':
             image_assurance_control_summary()
             image_count_over_time()
             image_growth_metrics()
-            app.run()
+            app.run(host='0.0.0.0', port=5000)
         else: 
           conn = psycopg2.connect(f"host={args.server} dbname=scalock user=postgres password={db_password}")
           cur = conn.cursor()
