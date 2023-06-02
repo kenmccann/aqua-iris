@@ -8,6 +8,7 @@ metadata:
 spec:
   ports:
   - port: 8088
+    name: flask
     protocol: TCP
     targetPort: 8088
   selector:
