@@ -148,7 +148,7 @@ if __name__ == '__main__':
             image_assurance_control_summary()
             image_count_over_time()
             image_growth_metrics()
-            app.run(host='0.0.0.0', port=5000)
+            app.run(host='0.0.0.0', port=8088)
         else: 
           conn = psycopg2.connect(f"host={args.server} dbname=scalock user=postgres password={db_password}")
           cur = conn.cursor()
