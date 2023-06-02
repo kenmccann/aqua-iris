@@ -10,10 +10,10 @@ from psycopg2.extras import DictCursor
 from tabulate import tabulate
 
 parser = argparse.ArgumentParser(description='Aqua Security metrics gathering tool necessary for assessing risk and security posture as seen by the Aqua Platform. This tool connects directly to the backend database.')
-parser.add_argument('-s', '--server', help='PostgreSQL hostname or IP', required=True)
+parser.add_argument('-s', '--server', help='PostgreSQL hostname or IP [Default: aqua-web]', default='aqua-web', required=False)
 parser.add_argument('-p', '--port', help='Specify port, if other than 5432 [Default: 5432]', default='5432', required=False)
 parser.add_argument('-n', '--dbname', help='Name of the Aqua database within PostgreSQL [Default: scalock]', default='scalock', required=False)
-parser.add_argument('-u', '--dbuser', help='PostgreSQL user that can perform queries on the Aqua database', default='postgres', required=False)
+parser.add_argument('-u', '--dbuser', help='PostgreSQL user that can perform queries on the Aqua database [Default: postgres]', default='postgres', required=False)
 parser.add_argument('-d', '--daemon', help='Run in daemon mode, starting the http server',
                     action='store_true')
 parser.add_argument('-D', '--debug', help='Enable debug messages', action='store_true')
