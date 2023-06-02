@@ -9,12 +9,27 @@ import glob
 from psycopg2.extras import DictCursor
 from tabulate import tabulate
 
-parser = argparse.ArgumentParser(description='Aqua Security metrics gathering tool necessary for assessing risk and security posture as seen by the Aqua Platform ')
+parser = argparse.ArgumentParser(description='Aqua Security metrics gathering tool necessary for assessing risk and security posture as seen by the Aqua Platform. This tool connects directly to the backend database.')
 parser.add_argument('-s', '--server', help='PostgreSQL hostname or IP', required=True)
+parser.add_argument('-p', '--port', help='Specify port, if other than 5432 [Default: 5432]', default='5432', required=False)
+parser.add_argument('-n', '--dbname', help='Name of the Aqua database within PostgreSQL [Default: scalock]', default='scalock', required=False)
+parser.add_argument('-u', '--dbuser', help='PostgreSQL user that can perform queries on the Aqua database', default='postgres', required=False)
 parser.add_argument('-d', '--daemon', help='Run in daemon mode, starting the http server',
                     action='store_true')
 parser.add_argument('-D', '--debug', help='Enable debug messages', action='store_true')
 args = parser.parse_args()
+
+if getenv('SCALOCK_DBHOST'): db_server = getenv('SCALOCK_DBHOST') 
+else: db_server = args.server
+
+if getenv('SCALOCK_DBPORT'): db_port = getenv('SCALOCK_DBPORT') 
+else: db_port = args.port
+
+if getenv('SCALOCK_DBNAME'): db_name = getenv('SCALOCK_DBNAME') 
+else: db_name = args.dbname
+
+if getenv('SCALOCK_DBUSER'): db_user = getenv('SCALOCK_DBUSER') 
+else: db_user = args.dbuser
 
 # Get database password from environment
 db_password = getenv('SCALOCK_DBPASSWORD')
@@ -23,7 +38,7 @@ db_password = getenv('SCALOCK_DBPASSWORD')
 app = Flask(__name__)
 
 # Establish long-lived connection to PostgreSQL Server
-conn = psycopg2.connect(f"host={args.server} dbname=scalock user=postgres password={db_password}")
+conn = psycopg2.connect(f"host={args.server} dbname={db_name} user={db_user} password={db_password}")
 cur = conn.cursor(cursor_factory=DictCursor)
 
 # Create output directory
