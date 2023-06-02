@@ -18,7 +18,7 @@ spec:
       containers:
       - args:
         - -d 
-        - -s aqua-db
+#        - -s aqua-db
 #        command:
 #        - /bin/sh
         ports:
