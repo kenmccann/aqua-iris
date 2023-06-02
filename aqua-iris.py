@@ -40,7 +40,7 @@ db_password = getenv('SCALOCK_DBPASSWORD')
 app = Flask(__name__)
 
 # Establish long-lived connection to PostgreSQL Server
-conn = psycopg2.connect(f"host={args.server} dbname={db_name} user={db_user} password={db_password}")
+conn = psycopg2.connect(f"host={db_server} dbname={db_name} user={db_user} password={db_password}")
 cur = conn.cursor(cursor_factory=DictCursor)
 
 # Create output directory
