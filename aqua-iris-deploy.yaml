@@ -21,6 +21,8 @@ spec:
         - -s aqua-db
 #        command:
 #        - /bin/sh
+        ports:
+        - containerPort: 5000
         env:
         - name: SCALOCK_DBPASSWORD
           valueFrom:
