@@ -55,40 +55,68 @@ def index():
                 <title>Download Test</title>
                 <style>
                     body {
-                        background-color: #01253f;
-                        background-image: url("https://example.com/aqua_logo.png");
-                        background-repeat: no-repeat;
-                        background-position: center center;
-                        background-size: cover;
+                        margin: 0;
+                        padding: 0;
+                        font-family: Arial, sans-serif;
+                        background-color: #031730;
+                    }
+                    
+                    .header {
+                        background-color: #031730;
+                        padding: 20px;
+                    }
+                    
+                    .logo {
+                        display: inline-block;
+                        vertical-align: middle;
+                        width: 150px;
                     }
 
                     .content {
                         text-align: center;
                         padding: 50px;
+                    }
+
+                    h1 {
+                        font-size: 36px;
+                        font-weight: 600;
+                        margin-bottom: 20px;
                         color: #ffffff;
-                        font-family: Arial, sans-serif;
+                    }
+
+                    p {
+                        font-size: 18px;
+                        margin-bottom: 30px;
+                        color: #ffffff;
                     }
 
                     .download-button {
-                        background-color: #00b4e6;
-                        color: #ffffff;
-                        border: none;
-                        padding: 10px 20px;
-                        font-size: 16px;
-                        cursor: pointer;
-                        border-radius: 4px;
+                        transition: all .2s ease;
+                        background-color: rgba(0,0,0,0);
+                        font-weight: 700;
+                        border: 2px solid #00ffe4;
+                        font-size: 1.125rem;
+                        padding: .875rem 1rem;
+                        color: #00ffe4;
+                        white-space: normal;
+                        text-align: left;
+                        border-radius: 5px;
                     }
 
                     .download-button:hover {
-                        background-color: #007c9b;
+                        background-color: #00ffe4;
+                        color: #07242d;
                     }
                 </style>
             </head>
             <body>
+                <div class="header">
+                    <img class="logo" src="https://www.aquasec.com/wp-content/themes/aqua3/images/logo_aqua_dark.svg" alt="Aqua Security Logo">
+                </div>
                 <div class="content">
-                    <h1>Download Test Page</h1>
-                    <p>Click the button below to download the JSON file.</p>
-                    <button class="download-button" onclick="window.location.href='/download'">Download JSON</button>
+                    <h1>Download Query Results</h1>
+                    <p>Click the button below to download the query results.</p>
+                    <button class="download-button" onclick="window.location.href='/download'">Download</button>
                 </div>
             </body>
         </html>
