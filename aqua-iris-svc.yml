@@ -7,9 +7,9 @@ metadata:
   namespace: aqua
 spec:
   ports:
-  - port: 5000
+  - port: 8088
     protocol: TCP
-    targetPort: 5000
+    targetPort: 8088
   selector:
     app: aqua-iris
   type: ClusterIP

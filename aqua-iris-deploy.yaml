@@ -22,18 +22,13 @@ spec:
 #        command:
 #        - /bin/sh
         ports:
-        - containerPort: 5000
+        - containerPort: 8088
         env:
         - name: SCALOCK_DBPASSWORD
           valueFrom:
             secretKeyRef:
               key: password
               name: aqua-db
-#        envFrom:
-#        - secretRef:
-#            name: aqua-scanner
-#        - configMapRef:
-#            name: aqua-scanner-config
         image: kenmac/aqua-iris
         imagePullPolicy: Always
         name: aqua-iris
