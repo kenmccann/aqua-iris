@@ -1,6 +1,7 @@
 import psycopg2
 import argparse
-from os import getenv, path, makedirs
+from os import getenv, path, makedirs, listdir
+import os
 import sys
 from flask import Flask, send_file
 import csv
@@ -191,14 +192,22 @@ def image_ia_repo_results():
   header = get_header()
   write_csv('out/image_ia_repo_results.csv', header, records)
 
+def run_all_scalock():
+   for file in os.listdir("csp-queries/scalock/"):
+      f = os.path.join("csp-queries/scalock/", file)
+      print(f"Working on: {f}") 
+      records = execute_query(f)
+      if len(records) < 50:
+         print(f"{f}:\n" + result_table(records)+"\n")
+      header = get_header()
+      write_csv('out/'+file.replace(".sql", ".csv"), header, records)
+      
+
 if __name__ == '__main__':
     try:
         if args.daemon:
-            image_repo_vuln_severity_distribution()
-            containers_overall_assurance()
-            image_assurance_control_summary()
-            image_count_over_time()
-            image_growth_metrics()
+
+            run_all_scalock()
             app.run(host='0.0.0.0', port=8088)
         else: 
           conn = psycopg2.connect(f"host={args.server} dbname=scalock user=postgres password={db_password}")

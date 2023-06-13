@@ -134,3 +134,4 @@ launch.json
 *.csv
 *.zip
 out/
+.DS_Store
