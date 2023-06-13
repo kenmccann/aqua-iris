@@ -183,7 +183,13 @@ def image_growth_metrics():
   records = execute_query("csp-queries/scalock/image_growth_metrics.sql")
   print("Growth metrics\n" + result_table(records)+"\n")
   header = get_header()
-  write_csv('out/image_count_over_time.csv', header, records)
+  write_csv('out/image_growth_metrics.csv', header, records)
+
+def image_ia_repo_results():
+  records = execute_query("csp-queries/scalock/image_ia_repo_results.sql")
+  print("Top non-compliance of assurance controls by repository\n" + result_table(records)+"\n")
+  header = get_header()
+  write_csv('out/image_ia_repo_results.csv', header, records)
 
 if __name__ == '__main__':
     try:
