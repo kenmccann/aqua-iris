@@ -194,6 +194,8 @@ def image_ia_repo_results():
 
 def run_all_scalock():
    for file in os.listdir("csp-queries/scalock/"):
+      if not file.endswith('.sql'):
+         continue
       f = os.path.join("csp-queries/scalock/", file)
       print(f"Working on: {f}") 
       records = execute_query(f)
