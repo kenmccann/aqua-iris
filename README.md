@@ -37,7 +37,7 @@ docker build . -t aqua-iris:latest
 #### Run the Docker container
 
 ```
-docker run --rm -it --entrypoint=/bin/sh \
+docker run --rm -it -p 8088:8088 \
 -e SCALOCK_DBPASSWORD=<password> \
 -e SCALOCK_DBHOST=<hostname> \
 -e SCALOCK_DBNAME=<database_name> \
