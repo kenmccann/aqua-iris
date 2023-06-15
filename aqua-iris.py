@@ -18,6 +18,7 @@ parser.add_argument('-u', '--dbuser', help='PostgreSQL user that can perform que
 parser.add_argument('-d', '--daemon', help='Run in daemon mode, starting the http server',
                     action='store_true')
 parser.add_argument('-D', '--debug', help='Enable debug messages', action='store_true')
+parser.add_argument('-q', '--query', help='', choices=['all', 'operational', 'audit', ])
 args = parser.parse_args()
 
 if getenv('SCALOCK_DBHOST'): db_server = getenv('SCALOCK_DBHOST') 
@@ -208,16 +209,17 @@ def run_all_scalock():
 if __name__ == '__main__':
     try:
         if args.daemon:
-
             run_all_scalock()
             app.run(host='0.0.0.0', port=8088)
         else: 
-          conn = psycopg2.connect(f"host={args.server} dbname=scalock user=postgres password={db_password}")
-          cur = conn.cursor()
+           print("")
+           
+          #conn = psycopg2.connect(f"host={args.server} dbname=scalock user=postgres password={db_password}")
+          #cur = conn.cursor()
           #cur.execute("SELECT * FROM settings")
-          cur.execute(open("csp-queries/scalock/image_repo_vuln_severity_distribution.sql", "r").read())
-          records = cur.fetchall()
-          print(records)
+          #cur.execute(open("csp-queries/scalock/image_repo_vuln_severity_distribution.sql", "r").read())
+          #records = cur.fetchall()
+          #print(records)
 
     except KeyboardInterrupt:
         print("\nExiting by user request.\n", file=sys.stderr)
