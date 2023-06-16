@@ -18,7 +18,7 @@ parser.add_argument('-u', '--dbuser', help='PostgreSQL user that can perform que
 parser.add_argument('-d', '--daemon', help='Run in daemon mode, starting the http server',
                     action='store_true')
 parser.add_argument('-D', '--debug', help='Enable debug messages', action='store_true')
-parser.add_argument('-q', '--query', help='', choices=['all', 'operational', 'audit', ])
+parser.add_argument('-q', '--query', help='', choices=['all', 'operational', 'audit'])
 args = parser.parse_args()
 
 if getenv('SCALOCK_DBHOST'): db_server = getenv('SCALOCK_DBHOST') 
