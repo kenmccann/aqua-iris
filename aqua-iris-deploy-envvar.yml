@@ -40,7 +40,7 @@ spec:
         image: kenmac/aqua-iris
         imagePullPolicy: Always
         name: aqua-iris
-        envFrom:
+        #envFrom:
         # - configMapRef:
         #     name: aqua-csp-server-config
       imagePullSecrets:
