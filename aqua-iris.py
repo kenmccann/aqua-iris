@@ -9,6 +9,7 @@ from zipfile import ZipFile
 import glob
 from psycopg2.extras import DictCursor
 from tabulate import tabulate
+import time
 
 parser = argparse.ArgumentParser(description='Aqua Security metrics gathering tool necessary for assessing risk and security posture as seen by the Aqua Platform. This tool connects directly to the backend database.')
 parser.add_argument('-s', '--server', help='PostgreSQL hostname or IP [Default: aqua-web]', default='aqua-web', required=False)
@@ -197,6 +198,7 @@ def run_all_scalock():
    for file in os.listdir("csp-queries/scalock/"):
       if not file.endswith('.sql'):
          continue
+      tic = time.perf_counter()
       f = os.path.join("csp-queries/scalock/", file)
       print(f"Working on: {f}") 
       records = execute_query(f)
@@ -204,6 +206,8 @@ def run_all_scalock():
          print(f"{f}:\n" + result_table(records)+"\n")
       header = get_header()
       write_csv('out/'+file.replace(".sql", ".csv"), header, records)
+      toc = time.perf_counter()
+      print(f"{file}: SQL query completed in {toc - tic:0.4f} seconds")
       
 
 if __name__ == '__main__':
