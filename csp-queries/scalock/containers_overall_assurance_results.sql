@@ -35,7 +35,7 @@ SELECT
   LOWER(test.status) as outcome
 FROM
   host_scan hs,
-  jsonb_to_recordset(COALESCE(hs.data#>'{result,Controls,0,tests}',hs.data#>'{result,tests}')) as section("desc" text, section text, fail numeric, pass numeric, warn numeric, info numeric, results jsonb),
+  jsonb_to_recordset(COALESCE(hs.data#>'{result,Controls,0,tests}',hs.data#>'{result,tests,results}')) as section("desc" text, section text, fail numeric, pass numeric, warn numeric, info numeric, results jsonb),
   jsonb_to_recordset(section.results) as test(test_number text, test_desc text, status text)
 WHERE test.status = 'PASS' or test.status = 'FAIL'
 
@@ -83,8 +83,7 @@ SELECT
 	   co.outcome
 FROM hosts h
 FULL OUTER JOIN containers c on h.id = c.hostid
-JOIN kubernetes_resources k8sr on c.level1 = k8sr.cluster_name AND c.level2 = k8sr.namespace AND c.level3 = k8sr.name and c.level3_type = k8sr.kind
-JOIN image_metadata im on im.docker_id = c.oci_image_id
-JOIN compliance_outcomes co on (co.resource_id = im.image_id::text AND scan_type = 'image') OR co.resource_id = c.hostid or co.resource_id = c.id or co.resource_id = k8sr.uid
---WHERE co.scan_type = 'image' 
+LEFT JOIN kubernetes_resources k8sr on c.level1 = k8sr.cluster_name AND c.level2 = k8sr.namespace AND c.level3 = k8sr.name and c.level3_type = k8sr.kind
+LEFT JOIN image_metadata im on im.docker_id = c.oci_image_id
+LEFT JOIN compliance_outcomes co on (co.resource_id = im.image_id::text AND scan_type = 'image') OR co.resource_id = c.hostid or co.resource_id = c.id or co.resource_id = k8sr.uid
 ORDER BY  c.level1,  c.level2,  c.level3, c.level4, c.name
