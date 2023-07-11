@@ -19,7 +19,7 @@ SELECT
   position('PASS' in test.status) as test_pass
 FROM
   host_scan hs,
-  jsonb_to_recordset(COALESCE(hs.data#>'{result,Controls,0,tests}',hs.data#>'{result,tests}')) as section("desc" text, section text, fail numeric, pass numeric, warn numeric, info numeric, results jsonb),
+  jsonb_to_recordset(COALESCE(hs.data#>'{result,Controls,0,tests}',hs.data#>'{result,tests, results}')) as section("desc" text, section text, fail numeric, pass numeric, warn numeric, info numeric, results jsonb),
   jsonb_to_recordset(section.results) as test(test_number text, test_desc text, status text)
   
   )
