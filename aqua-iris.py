@@ -42,16 +42,19 @@ else: db_user = args.dbuser
 
 # Audit database connection details
 if getenv('SCALOCK_AUDIT_DBHOST'): db_audit_server = getenv('SCALOCK_AUDIT_DBHOST') 
-else: db_audit_server = args.aserver
+elif parser.get_default('aserver') != args.aserver: db_audit_server = args.aserver
+else: db_audit_server = db_server
 
 if getenv('SCALOCK_AUDIT_DBPORT'): db_audit_port = getenv('SCALOCK_AUDIT_DBPORT') 
-else: db_audit_port = args.aport
+elif parser.get_default('aport') != args.aport: db_audit_port = args.aport
+else: db_audit_port = db_port
 
-if getenv('SCALOCK_AUDIT_DBNAME'): db_audit_name = getenv('SCALOCK_AUDIT_DBNAME') 
+if getenv('SCALOCK_AUDIT_DBNAME'): db_audit_name = getenv('SCALOCK_AUDIT_DBNAME')
 else: db_audit_name = args.adbname
 
 if getenv('SCALOCK_AUDIT_DBUSER'): db_audit_user = getenv('SCALOCK_AUDIT_DBUSER') 
-else: db_audit_user = args.adbuser
+elif parser.get_default('adbuser') != args.adbuser: db_audit_user = args.adbuser
+else: db_audit_user = db_user
 
 
 # Get database password from environment
