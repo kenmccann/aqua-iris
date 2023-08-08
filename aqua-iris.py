@@ -44,13 +44,13 @@ else: db_user = args.dbuser
 if getenv('SCALOCK_AUDIT_DBHOST'): db_audit_server = getenv('SCALOCK_AUDIT_DBHOST') 
 else: db_audit_server = args.aserver
 
-if getenv('SCALOCK_AUDIT_DBPORT'): db_port = getenv('SCALOCK_AUDIT_DBPORT') 
+if getenv('SCALOCK_AUDIT_DBPORT'): db_audit_port = getenv('SCALOCK_AUDIT_DBPORT') 
 else: db_audit_port = args.aport
 
-if getenv('SCALOCK_AUDIT_DBNAME'): db_name = getenv('SCALOCK_AUDIT_DBNAME') 
+if getenv('SCALOCK_AUDIT_DBNAME'): db_audit_name = getenv('SCALOCK_AUDIT_DBNAME') 
 else: db_audit_name = args.adbname
 
-if getenv('SCALOCK_AUDIT_DBUSER'): db_user = getenv('SCALOCK_AUDIT_DBUSER') 
+if getenv('SCALOCK_AUDIT_DBUSER'): db_audit_user = getenv('SCALOCK_AUDIT_DBUSER') 
 else: db_audit_user = args.adbuser
 
 
