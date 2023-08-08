@@ -56,6 +56,8 @@ else: db_audit_user = args.adbuser
 
 # Get database password from environment
 db_password = getenv('SCALOCK_DBPASSWORD')
+if getenv('SCALOCK_AUDIT_DBPASSWORD'): db_audit_password = getenv('SCALOCK_AUDIT_DBPASSWORD')
+else: db_audit_password = db_password
 
 # Create Flask HTTP server
 app = Flask(__name__)
@@ -63,6 +65,10 @@ app = Flask(__name__)
 # Establish long-lived connection to PostgreSQL Server
 conn = psycopg2.connect(f"host={db_server} dbname={db_name} user={db_user} password={db_password}")
 cur = conn.cursor(cursor_factory=DictCursor)
+
+# Establish long-lived connection to *audit* PostgreSQL Server
+conn_a = psycopg2.connect(f"host={db_audit_server} dbname={db_audit_name} user={db_audit_user} password={db_audit_password}")
+cur_a = conn_a.cursor(cursor_factory=DictCursor)
 
 # Create output directory
 if not path.exists('out'):
@@ -156,6 +162,10 @@ def execute_query(query_file):
    cur.execute(open(query_file, "r").read())
    return cur.fetchall()
 
+def execute_query_a(query_file):
+   cur_a.execute(open(query_file, "r").read())
+   return cur_a.fetchall()
+
 def get_header():
    return [desc[0] for desc in cur.description]
 
@@ -227,11 +237,28 @@ def run_all_scalock():
       toc = time.perf_counter()
       print(f"{file}: SQL query completed in {toc - tic:0.4f} seconds")
       
+def run_all_scalock_audit():
+   for file in os.listdir("csp-queries/slk_audit/"):
+      if not file.endswith('.sql'):
+         continue
+      tic = time.perf_counter()
+      f = os.path.join("csp-queries/slk_audit/", file)
+      print(f"Working on: {f}") 
+      records = execute_query_a(f)
+      if len(records) < 50:
+         print(f"{f}:\n" + result_table(records)+"\n")
+      header = get_header()
+      write_csv('out/'+file.replace(".sql", ".csv"), header, records)
+      toc = time.perf_counter()
+      print(f"{file}: SQL query completed in {toc - tic:0.4f} seconds")
+
+
 
 if __name__ == '__main__':
     try:
         if args.daemon:
             run_all_scalock()
+            run_all_scalock_audit()
             app.run(host='0.0.0.0', port=8088)
         else: 
            print("")
