@@ -37,6 +37,20 @@ spec:
           value: ""
         - name: SCALOCK_DBUSER
           value: ""
+        # Uncomment the following lines if connecting to a separately hosted audit database
+        # - name: SCALOCK_AUDIT_DBPASSWORD
+        #   valueFrom:
+        #     secretKeyRef:
+        #       key: password
+        #       name: aqua-db
+        # - name: SCALOCK_AUDIT_DBHOST
+        #   value: ""
+        # - name: SCALOCK_AUDIT_DBPORT
+        #   value: ""
+        # - name: SCALOCK_AUDIT_DBNAME
+        #   value: ""
+        # - name: SCALOCK_AUDIT_DBUSER
+        #   value: ""
         image: kenmac/aqua-iris
         imagePullPolicy: Always
         name: aqua-iris
