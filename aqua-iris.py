@@ -12,20 +12,24 @@ from tabulate import tabulate
 import time
 
 parser = argparse.ArgumentParser(description='Aqua Security metrics gathering tool necessary for assessing risk and security posture as seen by the Aqua Platform. This tool connects directly to the backend database.')
-parser.add_argument('-s', '--server', help='PostgreSQL hostname or IP [Default: aqua-web]', default='aqua-web', required=False)
+parser.add_argument('-s', '--server', help='PostgreSQL hostname or IP for the operational databse [Default: aqua-db]', default='aqua-db', required=False)
 parser.add_argument('-p', '--port', help='Specify port, if other than 5432 [Default: 5432]', default='5432', required=False)
-parser.add_argument('-n', '--dbname', help='Name of the Aqua database within PostgreSQL [Default: scalock]', default='scalock', required=False)
-parser.add_argument('-u', '--dbuser', help='PostgreSQL user that can perform queries on the Aqua database [Default: postgres]', default='postgres', required=False)
+parser.add_argument('-db', '--dbname', help='Name of the operational Aqua database within PostgreSQL [Default: scalock]', default='scalock', required=False)
+parser.add_argument('-u', '--dbuser', help='PostgreSQL user that can perform queries on the operational Aqua database [Default: postgres]', default='postgres', required=False)
 parser.add_argument('-d', '--daemon', help='Run in daemon mode, starting the http server',
                     action='store_true')
 parser.add_argument('-D', '--debug', help='Enable debug messages', action='store_true')
 parser.add_argument('-q', '--query', help='', choices=['all', 'operational', 'audit'])
+parser.add_argument('-as', '--aserver', help='PostgreSQL hostname or IP for the audit database [Default: aqua-db]', default='aqua-db', required=False)
+parser.add_argument('-ap', '--aport', help='Specify port, if other than 5432 [Default: 5432]', default='5432', required=False)
+parser.add_argument('-adb', '--adbname', help='Name of the audit Aqua database within PostgreSQL [Default: slk_audit]', default='slk_audit', required=False)
+parser.add_argument('-au', '--adbuser', help='PostgreSQL user that can perform queries on the audit Aqua database [Default: postgres]', default='postgres', required=False)
 args = parser.parse_args()
 
+# Operational database connection details
 if getenv('SCALOCK_DBHOST'): db_server = getenv('SCALOCK_DBHOST') 
 else: db_server = args.server
 print('db_server = ' + db_server)
-
 
 if getenv('SCALOCK_DBPORT'): db_port = getenv('SCALOCK_DBPORT') 
 else: db_port = args.port
@@ -35,6 +39,20 @@ else: db_name = args.dbname
 
 if getenv('SCALOCK_DBUSER'): db_user = getenv('SCALOCK_DBUSER') 
 else: db_user = args.dbuser
+
+# Audit database connection details
+if getenv('SCALOCK_AUDIT_DBHOST'): db_audit_server = getenv('SCALOCK_AUDIT_DBHOST') 
+else: db_audit_server = args.aserver
+
+if getenv('SCALOCK_AUDIT_DBPORT'): db_port = getenv('SCALOCK_AUDIT_DBPORT') 
+else: db_audit_port = args.aport
+
+if getenv('SCALOCK_AUDIT_DBNAME'): db_name = getenv('SCALOCK_AUDIT_DBNAME') 
+else: db_audit_name = args.adbname
+
+if getenv('SCALOCK_AUDIT_DBUSER'): db_user = getenv('SCALOCK_AUDIT_DBUSER') 
+else: db_audit_user = args.adbuser
+
 
 # Get database password from environment
 db_password = getenv('SCALOCK_DBPASSWORD')
