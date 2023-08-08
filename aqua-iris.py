@@ -9,22 +9,27 @@ from zipfile import ZipFile
 import glob
 from psycopg2.extras import DictCursor
 from tabulate import tabulate
+import time
 
 parser = argparse.ArgumentParser(description='Aqua Security metrics gathering tool necessary for assessing risk and security posture as seen by the Aqua Platform. This tool connects directly to the backend database.')
-parser.add_argument('-s', '--server', help='PostgreSQL hostname or IP [Default: aqua-web]', default='aqua-web', required=False)
+parser.add_argument('-s', '--server', help='PostgreSQL hostname or IP for the operational databse [Default: aqua-db]', default='aqua-db', required=False)
 parser.add_argument('-p', '--port', help='Specify port, if other than 5432 [Default: 5432]', default='5432', required=False)
-parser.add_argument('-n', '--dbname', help='Name of the Aqua database within PostgreSQL [Default: scalock]', default='scalock', required=False)
-parser.add_argument('-u', '--dbuser', help='PostgreSQL user that can perform queries on the Aqua database [Default: postgres]', default='postgres', required=False)
+parser.add_argument('-db', '--dbname', help='Name of the operational Aqua database within PostgreSQL [Default: scalock]', default='scalock', required=False)
+parser.add_argument('-u', '--dbuser', help='PostgreSQL user that can perform queries on the operational Aqua database [Default: postgres]', default='postgres', required=False)
 parser.add_argument('-d', '--daemon', help='Run in daemon mode, starting the http server',
                     action='store_true')
 parser.add_argument('-D', '--debug', help='Enable debug messages', action='store_true')
 parser.add_argument('-q', '--query', help='', choices=['all', 'operational', 'audit'])
+parser.add_argument('-as', '--aserver', help='PostgreSQL hostname or IP for the audit database [Default: aqua-db]', default='aqua-db', required=False)
+parser.add_argument('-ap', '--aport', help='Specify port, if other than 5432 [Default: 5432]', default='5432', required=False)
+parser.add_argument('-adb', '--adbname', help='Name of the audit Aqua database within PostgreSQL [Default: slk_audit]', default='slk_audit', required=False)
+parser.add_argument('-au', '--adbuser', help='PostgreSQL user that can perform queries on the audit Aqua database [Default: postgres]', default='postgres', required=False)
 args = parser.parse_args()
 
+# Operational database connection details
 if getenv('SCALOCK_DBHOST'): db_server = getenv('SCALOCK_DBHOST') 
 else: db_server = args.server
 print('db_server = ' + db_server)
-
 
 if getenv('SCALOCK_DBPORT'): db_port = getenv('SCALOCK_DBPORT') 
 else: db_port = args.port
@@ -35,8 +40,27 @@ else: db_name = args.dbname
 if getenv('SCALOCK_DBUSER'): db_user = getenv('SCALOCK_DBUSER') 
 else: db_user = args.dbuser
 
+# Audit database connection details
+if getenv('SCALOCK_AUDIT_DBHOST'): db_audit_server = getenv('SCALOCK_AUDIT_DBHOST') 
+elif parser.get_default('aserver') != args.aserver: db_audit_server = args.aserver
+else: db_audit_server = db_server
+
+if getenv('SCALOCK_AUDIT_DBPORT'): db_audit_port = getenv('SCALOCK_AUDIT_DBPORT') 
+elif parser.get_default('aport') != args.aport: db_audit_port = args.aport
+else: db_audit_port = db_port
+
+if getenv('SCALOCK_AUDIT_DBNAME'): db_audit_name = getenv('SCALOCK_AUDIT_DBNAME')
+else: db_audit_name = args.adbname
+
+if getenv('SCALOCK_AUDIT_DBUSER'): db_audit_user = getenv('SCALOCK_AUDIT_DBUSER') 
+elif parser.get_default('adbuser') != args.adbuser: db_audit_user = args.adbuser
+else: db_audit_user = db_user
+
+
 # Get database password from environment
 db_password = getenv('SCALOCK_DBPASSWORD')
+if getenv('SCALOCK_AUDIT_DBPASSWORD'): db_audit_password = getenv('SCALOCK_AUDIT_DBPASSWORD')
+else: db_audit_password = db_password
 
 # Create Flask HTTP server
 app = Flask(__name__)
@@ -44,6 +68,10 @@ app = Flask(__name__)
 # Establish long-lived connection to PostgreSQL Server
 conn = psycopg2.connect(f"host={db_server} dbname={db_name} user={db_user} password={db_password}")
 cur = conn.cursor(cursor_factory=DictCursor)
+
+# Establish long-lived connection to *audit* PostgreSQL Server
+conn_a = psycopg2.connect(f"host={db_audit_server} dbname={db_audit_name} user={db_audit_user} password={db_audit_password}")
+cur_a = conn_a.cursor(cursor_factory=DictCursor)
 
 # Create output directory
 if not path.exists('out'):
@@ -137,6 +165,10 @@ def execute_query(query_file):
    cur.execute(open(query_file, "r").read())
    return cur.fetchall()
 
+def execute_query_a(query_file):
+   cur_a.execute(open(query_file, "r").read())
+   return cur_a.fetchall()
+
 def get_header():
    return [desc[0] for desc in cur.description]
 
@@ -197,6 +229,7 @@ def run_all_scalock():
    for file in os.listdir("csp-queries/scalock/"):
       if not file.endswith('.sql'):
          continue
+      tic = time.perf_counter()
       f = os.path.join("csp-queries/scalock/", file)
       print(f"Working on: {f}") 
       records = execute_query(f)
@@ -204,12 +237,31 @@ def run_all_scalock():
          print(f"{f}:\n" + result_table(records)+"\n")
       header = get_header()
       write_csv('out/'+file.replace(".sql", ".csv"), header, records)
+      toc = time.perf_counter()
+      print(f"{file}: SQL query completed in {toc - tic:0.4f} seconds")
       
+def run_all_scalock_audit():
+   for file in os.listdir("csp-queries/slk_audit/"):
+      if not file.endswith('.sql'):
+         continue
+      tic = time.perf_counter()
+      f = os.path.join("csp-queries/slk_audit/", file)
+      print(f"Working on: {f}") 
+      records = execute_query_a(f)
+      if len(records) < 50:
+         print(f"{f}:\n" + result_table(records)+"\n")
+      header = get_header()
+      write_csv('out/'+file.replace(".sql", ".csv"), header, records)
+      toc = time.perf_counter()
+      print(f"{file}: SQL query completed in {toc - tic:0.4f} seconds")
+
+
 
 if __name__ == '__main__':
     try:
         if args.daemon:
             run_all_scalock()
+            run_all_scalock_audit()
             app.run(host='0.0.0.0', port=8088)
         else: 
            print("")
