@@ -135,3 +135,4 @@ launch.json
 *.zip
 out/
 .DS_Store
+*.tmp
