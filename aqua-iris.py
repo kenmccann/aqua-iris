@@ -3,7 +3,7 @@ import argparse
 from os import getenv, path, makedirs, listdir
 import os
 import sys
-from flask import Flask, send_file
+from flask import Flask, send_file, render_template
 import csv
 from zipfile import ZipFile
 import glob
@@ -63,7 +63,7 @@ if getenv('SCALOCK_AUDIT_DBPASSWORD'): db_audit_password = getenv('SCALOCK_AUDIT
 else: db_audit_password = db_password
 
 # Create Flask HTTP server
-app = Flask(__name__)
+app = Flask(__name__, template_folder='ui')
 
 # Establish long-lived connection to PostgreSQL Server
 conn = psycopg2.connect(f"host={db_server} dbname={db_name} user={db_user} password={db_password}")
@@ -79,78 +79,7 @@ if not path.exists('out'):
 
 @app.route('/')
 def index():
-    return '''
-        <html>
-            <head>
-                <title>Download Test</title>
-                <style>
-                    body {
-                        margin: 0;
-                        padding: 0;
-                        font-family: Arial, sans-serif;
-                        background-color: #031730;
-                    }
-                    
-                    .header {
-                        background-color: #031730;
-                        padding: 20px;
-                    }
-                    
-                    .logo {
-                        display: inline-block;
-                        vertical-align: middle;
-                        width: 150px;
-                    }
-
-                    .content {
-                        text-align: center;
-                        padding: 50px;
-                    }
-
-                    h1 {
-                        font-size: 36px;
-                        font-weight: 600;
-                        margin-bottom: 20px;
-                        color: #ffffff;
-                    }
-
-                    p {
-                        font-size: 18px;
-                        margin-bottom: 30px;
-                        color: #ffffff;
-                    }
-
-                    .download-button {
-                        transition: all .2s ease;
-                        background-color: rgba(0,0,0,0);
-                        font-weight: 700;
-                        border: 2px solid #00ffe4;
-                        font-size: 1.125rem;
-                        padding: .875rem 1rem;
-                        color: #00ffe4;
-                        white-space: normal;
-                        text-align: left;
-                        border-radius: 5px;
-                    }
-
-                    .download-button:hover {
-                        background-color: #00ffe4;
-                        color: #07242d;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="header">
-                    <img class="logo" src="https://www.aquasec.com/wp-content/themes/aqua3/images/logo_aqua_dark.svg" alt="Aqua Security Logo">
-                </div>
-                <div class="content">
-                    <h1>Download Query Results</h1>
-                    <p>Click the button below to download the query results.</p>
-                    <button class="download-button" onclick="window.location.href='/download'">Download</button>
-                </div>
-            </body>
-        </html>
-    '''
+    return render_template('/index.html')
 
 @app.route('/download')
 def download():
@@ -161,20 +90,20 @@ def download():
           f.write(file)
     return send_file(filename, as_attachment=True)
 
-def execute_query(query_file):
-   cur.execute(open(query_file, "r").read())
-   return cur.fetchall()
+def execute_query(cursor, query_file):
+   cursor.execute(open(query_file, "r").read())
+   return cursor.fetchall()
 
-def execute_query_a(query_file):
-   cur_a.execute(open(query_file, "r").read())
-   return cur_a.fetchall()
+# def execute_query_a(query_file):
+#    cur_a.execute(open(query_file, "r").read())
+#    return cur_a.fetchall()
 
-def get_header():
-   return [desc[0] for desc in cur.description]
+def get_header(cursor):
+   return [desc[0] for desc in cursor.description]
 
-def result_table(records):
+def result_table(cursor, records):
     # Get column names from cursor description
-    columns = get_header()
+    columns = get_header(cursor)
 
     # Format query results as a list of lists
     formatted_rows = [[row[col] for col in columns] for row in records]
@@ -189,42 +118,6 @@ def write_csv(filename, header, records):
     csv_writer.writerows(records)
    
 
-def image_repo_vuln_severity_distribution():
-  records = execute_query("csp-queries/scalock/image_repo_vuln_severity_distribution.sql")
-  print("Top 10 repos by Vulnerability severity distirbution\n" + result_table(records)+"\n")
-  header = get_header()
-  write_csv('out/image_repo_vuln_sev_distro.csv', header, records)
-
-def containers_overall_assurance():
-  records = execute_query("csp-queries/scalock/containers_overall_assurance_results.sql")
-  print("Containers overall assurance results\n" + result_table(records)+"\n")
-  header = get_header()
-  write_csv('out/containers_overall_assurance_results.csv', header, records)
-
-def image_assurance_control_summary():
-  records = execute_query("csp-queries/scalock/image_assurance_control_summary.sql")
-  print("Image Assurance control summary\n" + result_table(records)+"\n")
-  header = get_header()
-  write_csv('out/image_assurance_control_summary.csv', header, records)
-
-def image_count_over_time():
-  records = execute_query("csp-queries/scalock/image_count_over_time.sql")
-  print("Image count growth over 12 months\n" + result_table(records)+"\n")
-  header = get_header()
-  write_csv('out/image_count_over_time.csv', header, records)
-
-def image_growth_metrics():
-  records = execute_query("csp-queries/scalock/image_growth_metrics.sql")
-  print("Growth metrics\n" + result_table(records)+"\n")
-  header = get_header()
-  write_csv('out/image_growth_metrics.csv', header, records)
-
-def image_ia_repo_results():
-  records = execute_query("csp-queries/scalock/image_ia_repo_results.sql")
-  print("Top non-compliance of assurance controls by repository\n" + result_table(records)+"\n")
-  header = get_header()
-  write_csv('out/image_ia_repo_results.csv', header, records)
-
 def run_all_scalock():
    for file in os.listdir("csp-queries/scalock/"):
       if not file.endswith('.sql'):
@@ -232,10 +125,10 @@ def run_all_scalock():
       tic = time.perf_counter()
       f = os.path.join("csp-queries/scalock/", file)
       print(f"Working on: {f}") 
-      records = execute_query(f)
+      records = execute_query(cur, f)
       if len(records) < 50:
-         print(f"{f}:\n" + result_table(records)+"\n")
-      header = get_header()
+         print(f"{f}:\n" + result_table(cur, records)+"\n")
+      header = get_header(cur)
       write_csv('out/'+file.replace(".sql", ".csv"), header, records)
       toc = time.perf_counter()
       print(f"{file}: SQL query completed in {toc - tic:0.4f} seconds")
@@ -247,10 +140,10 @@ def run_all_scalock_audit():
       tic = time.perf_counter()
       f = os.path.join("csp-queries/slk_audit/", file)
       print(f"Working on: {f}") 
-      records = execute_query_a(f)
+      records = execute_query(cur_a, f)
       if len(records) < 50:
-         print(f"{f}:\n" + result_table(records)+"\n")
-      header = get_header()
+         print(f"{f}:\n" + result_table(cur_a, records)+"\n")
+      header = get_header(cur_a)
       write_csv('out/'+file.replace(".sql", ".csv"), header, records)
       toc = time.perf_counter()
       print(f"{file}: SQL query completed in {toc - tic:0.4f} seconds")
