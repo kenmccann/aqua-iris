@@ -90,20 +90,20 @@ def download():
           f.write(file)
     return send_file(filename, as_attachment=True)
 
-def execute_query(query_file):
-   cur.execute(open(query_file, "r").read())
-   return cur.fetchall()
+def execute_query(cursor, query_file):
+   cursor.execute(open(query_file, "r").read())
+   return cursor.fetchall()
 
-def execute_query_a(query_file):
-   cur_a.execute(open(query_file, "r").read())
-   return cur_a.fetchall()
+# def execute_query_a(query_file):
+#    cur_a.execute(open(query_file, "r").read())
+#    return cur_a.fetchall()
 
-def get_header():
-   return [desc[0] for desc in cur.description]
+def get_header(cursor):
+   return [desc[0] for desc in cursor.description]
 
-def result_table(records):
+def result_table(cursor, records):
     # Get column names from cursor description
-    columns = get_header()
+    columns = get_header(cursor)
 
     # Format query results as a list of lists
     formatted_rows = [[row[col] for col in columns] for row in records]
@@ -161,10 +161,10 @@ def run_all_scalock():
       tic = time.perf_counter()
       f = os.path.join("csp-queries/scalock/", file)
       print(f"Working on: {f}") 
-      records = execute_query(f)
+      records = execute_query(cur, f)
       if len(records) < 50:
-         print(f"{f}:\n" + result_table(records)+"\n")
-      header = get_header()
+         print(f"{f}:\n" + result_table(cur, records)+"\n")
+      header = get_header(cur)
       write_csv('out/'+file.replace(".sql", ".csv"), header, records)
       toc = time.perf_counter()
       print(f"{file}: SQL query completed in {toc - tic:0.4f} seconds")
@@ -176,10 +176,10 @@ def run_all_scalock_audit():
       tic = time.perf_counter()
       f = os.path.join("csp-queries/slk_audit/", file)
       print(f"Working on: {f}") 
-      records = execute_query_a(f)
+      records = execute_query(cur_a, f)
       if len(records) < 50:
-         print(f"{f}:\n" + result_table(records)+"\n")
-      header = get_header()
+         print(f"{f}:\n" + result_table(cur_a, records)+"\n")
+      header = get_header(cur_a)
       write_csv('out/'+file.replace(".sql", ".csv"), header, records)
       toc = time.perf_counter()
       print(f"{file}: SQL query completed in {toc - tic:0.4f} seconds")
