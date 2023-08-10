@@ -3,7 +3,7 @@ import argparse
 from os import getenv, path, makedirs, listdir
 import os
 import sys
-from flask import Flask, send_file
+from flask import Flask, send_file, render_template
 import csv
 from zipfile import ZipFile
 import glob
@@ -63,7 +63,7 @@ if getenv('SCALOCK_AUDIT_DBPASSWORD'): db_audit_password = getenv('SCALOCK_AUDIT
 else: db_audit_password = db_password
 
 # Create Flask HTTP server
-app = Flask(__name__)
+app = Flask(__name__, template_folder='ui')
 
 # Establish long-lived connection to PostgreSQL Server
 conn = psycopg2.connect(f"host={db_server} dbname={db_name} user={db_user} password={db_password}")
