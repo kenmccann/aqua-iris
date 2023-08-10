@@ -118,42 +118,6 @@ def write_csv(filename, header, records):
     csv_writer.writerows(records)
    
 
-def image_repo_vuln_severity_distribution():
-  records = execute_query("csp-queries/scalock/image_repo_vuln_severity_distribution.sql")
-  print("Top 10 repos by Vulnerability severity distirbution\n" + result_table(records)+"\n")
-  header = get_header()
-  write_csv('out/image_repo_vuln_sev_distro.csv', header, records)
-
-def containers_overall_assurance():
-  records = execute_query("csp-queries/scalock/containers_overall_assurance_results.sql")
-  print("Containers overall assurance results\n" + result_table(records)+"\n")
-  header = get_header()
-  write_csv('out/containers_overall_assurance_results.csv', header, records)
-
-def image_assurance_control_summary():
-  records = execute_query("csp-queries/scalock/image_assurance_control_summary.sql")
-  print("Image Assurance control summary\n" + result_table(records)+"\n")
-  header = get_header()
-  write_csv('out/image_assurance_control_summary.csv', header, records)
-
-def image_count_over_time():
-  records = execute_query("csp-queries/scalock/image_count_over_time.sql")
-  print("Image count growth over 12 months\n" + result_table(records)+"\n")
-  header = get_header()
-  write_csv('out/image_count_over_time.csv', header, records)
-
-def image_growth_metrics():
-  records = execute_query("csp-queries/scalock/image_growth_metrics.sql")
-  print("Growth metrics\n" + result_table(records)+"\n")
-  header = get_header()
-  write_csv('out/image_growth_metrics.csv', header, records)
-
-def image_ia_repo_results():
-  records = execute_query("csp-queries/scalock/image_ia_repo_results.sql")
-  print("Top non-compliance of assurance controls by repository\n" + result_table(records)+"\n")
-  header = get_header()
-  write_csv('out/image_ia_repo_results.csv', header, records)
-
 def run_all_scalock():
    for file in os.listdir("csp-queries/scalock/"):
       if not file.endswith('.sql'):
