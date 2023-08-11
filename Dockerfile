@@ -1,4 +1,4 @@
-FROM python:3.12.0b1-alpine3.18
+FROM python:3.12.0rc1-alpine3.18
 
 RUN buildDeps='gcc python3-dev musl-dev libpq-dev' \
     && apk update \
