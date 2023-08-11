@@ -94,10 +94,6 @@ def execute_query(cursor, query_file):
    cursor.execute(open(query_file, "r").read())
    return cursor.fetchall()
 
-# def execute_query_a(query_file):
-#    cur_a.execute(open(query_file, "r").read())
-#    return cur_a.fetchall()
-
 def get_header(cursor):
    return [desc[0] for desc in cursor.description]
 
