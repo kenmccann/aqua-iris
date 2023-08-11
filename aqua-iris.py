@@ -161,15 +161,7 @@ if __name__ == '__main__':
             run_all_scalock()
             run_all_scalock_audit()
             # At this point, the query results must be delivered somewhere
-            
 
-           
-          #conn = psycopg2.connect(f"host={args.server} dbname=scalock user=postgres password={db_password}")
-          #cur = conn.cursor()
-          #cur.execute("SELECT * FROM settings")
-          #cur.execute(open("csp-queries/scalock/image_repo_vuln_severity_distribution.sql", "r").read())
-          #records = cur.fetchall()
-          #print(records)
 
     except KeyboardInterrupt:
         print("\nExiting by user request.\n", file=sys.stderr)
