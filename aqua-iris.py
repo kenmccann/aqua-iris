@@ -153,11 +153,16 @@ def run_all_scalock_audit():
 if __name__ == '__main__':
     try:
         if args.daemon:
+            # If the -d param was provided, stay running, and launch Flask 
             run_all_scalock()
             run_all_scalock_audit()
             app.run(host='0.0.0.0', port=8088)
         else: 
-           print("")
+            run_all_scalock()
+            run_all_scalock_audit()
+            # At this point, the query results must be delivered somewhere
+            
+
            
           #conn = psycopg2.connect(f"host={args.server} dbname=scalock user=postgres password={db_password}")
           #cur = conn.cursor()
