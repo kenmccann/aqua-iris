@@ -4,7 +4,7 @@ RUN buildDeps='gcc python3-dev musl-dev libpq-dev' \
     && apk update \
     && apk add --no-cache libpq \
     && apk add --virtual temp1 --no-cache $buildDeps \
-    && pip install --no-cache-dir psycopg2 flask tabulate \
+    && pip install --no-cache-dir psycopg2 flask tabulate boto3 \
     && apk del temp1
 
 ADD aqua-iris.py /
