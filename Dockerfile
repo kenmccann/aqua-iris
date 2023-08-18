@@ -1,10 +1,10 @@
-FROM python:3.12.0b1-alpine3.18
+FROM python:3.12.0rc1-alpine3.18
 
 RUN buildDeps='gcc python3-dev musl-dev libpq-dev' \
     && apk update \
     && apk add --no-cache libpq \
     && apk add --virtual temp1 --no-cache $buildDeps \
-    && pip install --no-cache-dir psycopg2 flask tabulate \
+    && pip install --no-cache-dir psycopg2 flask tabulate boto3 \
     && apk del temp1
 
 ADD aqua-iris.py /
