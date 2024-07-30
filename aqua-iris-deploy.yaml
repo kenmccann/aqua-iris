@@ -29,7 +29,7 @@ spec:
             secretKeyRef:
               key: password
               name: aqua-db
-        image: kenmac/aqua-iris
+        image: registry.aquasec.com/aqua-iris:latest
         imagePullPolicy: Always
         name: aqua-iris
         envFrom:

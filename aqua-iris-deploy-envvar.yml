@@ -51,7 +51,7 @@ spec:
         #   value: ""
         # - name: SCALOCK_AUDIT_DBUSER
         #   value: ""
-        image: kenmac/aqua-iris
+        image: registry.aquasec.com/aqua-iris:latest
         imagePullPolicy: Always
         name: aqua-iris
         #envFrom:
